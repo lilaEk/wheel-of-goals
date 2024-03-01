@@ -20,6 +20,18 @@ public class Circle extends JFrame {
     int diameter;
     int x;
     int y;
+    Color[] pastelColors = {
+            new Color(255, 209, 220), // Pastel Pink
+            new Color(255, 192, 203), // Pastel Red
+            new Color(255, 218, 185), // Pastel Orange
+            new Color(255, 255, 153), // Pastel Yellow
+            new Color(204, 255, 204), // Pastel Light Green
+            new Color(153, 255, 153), // Pastel Dark Green
+            new Color(175, 238, 238), // Pastel Turquoise
+            new Color(173, 216, 230), // Pastel Light Blue
+            new Color(135, 206, 235), // Pastel Dark Blue
+            new Color(221, 160, 221)  // Pastel Purple
+    };
 
     public Circle() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -78,7 +90,7 @@ public class Circle extends JFrame {
 
                 g.setColor(Color.WHITE);
                 // rysowanie sekcji koła
-                drawLinesOfSections(g2d);
+                drawSections(g2d);
 
                 // rysowanie siatki (jeśli jest włączona)
                 if (showGrid) {
@@ -131,17 +143,22 @@ public class Circle extends JFrame {
         });
     }
 
-    private void drawLinesOfSections(Graphics2D g2d) {
-        for (Goal section : sections) {
-            g2d.setColor(section.getColor());
-            Arc2D.Double arc = new Arc2D.Double(x, y, diameter, diameter, section.getStartAngle(), section.getAngle(), Arc2D.PIE);
+    private void drawSections(Graphics2D g2d) {
+        for (Goal goal : sections) {
+            g2d.setColor(goal.getColor());
+            Arc2D.Double arc = new Arc2D.Double(x, y, diameter, diameter, goal.getStartAngle(), goal.getAngle(), Arc2D.PIE);
             GeneralPath path = new GeneralPath();
             path.append(arc, true);
+            g2d.fill(path);
+            g2d.setStroke(new BasicStroke(4f));
+            g2d.setColor(Color.WHITE);
             g2d.draw(path);
         }
     }
 
     private void drawGrid(Graphics2D g2d) {
+        g2d.setStroke(new BasicStroke(1f));
+
         int centerX = x + diameter / 2;
         int centerY = y + diameter / 2;
         double radius = diameter / 2.0;
@@ -165,7 +182,7 @@ public class Circle extends JFrame {
         double angle = 360.0 / sectionCount;
 
         for (int i = 0; i < sectionCount; i++) {
-            sections.add(new Goal(startAngle, angle));
+            sections.add(new Goal(startAngle, angle, pastelColors[i]));
             startAngle += angle;
         }
     }

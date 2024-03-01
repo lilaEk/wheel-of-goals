@@ -7,17 +7,10 @@ class Goal {
     private double startAngle;
     private double angle;
 
-//    public Goal(String nameOfGoal, Color color, int progress, double startAngle, double angle) {
-//        this.nameOfGoal = nameOfGoal;
-//        this.color = color;
-//        this.progress = progress;
-//        this.startAngle = startAngle;
-//        this.angle = angle;
-//    }
-
-    public Goal(double startAngle, double angle) {
+    public Goal(double startAngle, double angle, Color color) {
         this.startAngle = startAngle;
         this.angle = angle;
+        this.color = color;
     }
 
     public String getNameOfGoal() {
