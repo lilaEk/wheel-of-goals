@@ -12,7 +12,8 @@ public class Circle extends JFrame {
     private JButton toggleGridButton;
     private final int defaultWidth;
     private final int defaultHeight;
-    private ArrayList<Arc2D.Double> sections;
+//    private ArrayList<Arc2D.Double> sections;
+    private ArrayList<Goal> sections;
     private int sectionCount = 0;
     private boolean showGrid = false;
 
@@ -131,9 +132,11 @@ public class Circle extends JFrame {
     }
 
     private void drawLinesOfSections(Graphics2D g2d) {
-        for (Arc2D.Double section : sections) {
+        for (Goal section : sections) {
+            g2d.setColor(section.getColor());
+            Arc2D.Double arc = new Arc2D.Double(x, y, diameter, diameter, section.getStartAngle(), section.getAngle(), Arc2D.PIE);
             GeneralPath path = new GeneralPath();
-            path.append(section, true);
+            path.append(arc, true);
             g2d.draw(path);
         }
     }
@@ -156,14 +159,13 @@ public class Circle extends JFrame {
     private void addSectionToCircle() {
         sections.clear();
 
-        if (sectionCount == 1) return;
+        if (sectionCount <= 1) return;
 
         double startAngle = 0;
         double angle = 360.0 / sectionCount;
 
         for (int i = 0; i < sectionCount; i++) {
-            Arc2D.Double section = new Arc2D.Double(x, y, diameter, diameter, startAngle, angle, Arc2D.PIE);
-            sections.add(section);
+            sections.add(new Goal(startAngle, angle));
             startAngle += angle;
         }
     }
