@@ -85,8 +85,12 @@ public class Circle extends JFrame {
                 y = (getHeight() - diameter) / 2 + 35;
 
                 // rysowanie koła
-                g.setColor(new Color(255, 182, 193)); // różowy kolor
+                g.setColor(Color.WHITE);
                 g.fillOval(x, y, diameter, diameter);
+
+                // rysowanie obramowania koła
+//                g.setColor(Color.BLACK);
+//                g.drawOval(x, y - 50, diameter, diameter);
 
                 g.setColor(Color.WHITE);
                 // rysowanie sekcji koła
@@ -150,9 +154,11 @@ public class Circle extends JFrame {
             GeneralPath path = new GeneralPath();
             path.append(arc, true);
             g2d.fill(path);
-            g2d.setStroke(new BasicStroke(4f));
-            g2d.setColor(Color.WHITE);
-            g2d.draw(path);
+            if(sectionCount>1) {
+                g2d.setStroke(new BasicStroke(4f));
+                g2d.setColor(Color.WHITE);
+                g2d.draw(path);
+            }
         }
     }
 
@@ -176,7 +182,7 @@ public class Circle extends JFrame {
     private void addSectionToCircle() {
         sections.clear();
 
-        if (sectionCount <= 1) return;
+        if (sectionCount < 1) return;
 
         double startAngle = 0;
         double angle = 360.0 / sectionCount;
