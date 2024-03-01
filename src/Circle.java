@@ -1,28 +1,40 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Arc2D;
 import java.awt.geom.GeneralPath;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.TimerTask;
 
 public class Circle extends JFrame {
     private JPanel panel;
     private JButton addButton;
-    private JButton toggleGridButton;
+    private JButton showGridButton;
+    private JButton changeColorOfLinesButton;
+    private JButton saveAsPNGButton;
+    private final JButton[] buttons = new JButton[4];
+    //==================================================
     private final int defaultWidth;
     private final int defaultHeight;
-//    private ArrayList<Arc2D.Double> sections;
     private ArrayList<Goal> sections;
     private int sectionCount = 0;
+    private final int maxSteps = 15;
+
     private boolean showGrid = false;
+    private Color lineColor = Color.WHITE;
 
     int diameter;
     int x;
     int y;
     Color[] pastelColors = {
             new Color(255, 209, 220), // Pastel Pink
-            new Color(255, 192, 203), // Pastel Red
+            new Color(245, 139, 157), // Pastel Red
             new Color(255, 218, 185), // Pastel Orange
             new Color(255, 255, 153), // Pastel Yellow
             new Color(204, 255, 204), // Pastel Light Green
@@ -109,7 +121,9 @@ public class Circle extends JFrame {
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
         buttonPanel.add(addButton);
-        buttonPanel.add(toggleGridButton);
+        buttonPanel.add(showGridButton);
+        buttonPanel.add(changeColorOfLinesButton);
+        buttonPanel.add(saveAsPNGButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
         add(panel, BorderLayout.CENTER);
@@ -117,19 +131,37 @@ public class Circle extends JFrame {
 
     private void drawButtons() {
         addButton = new JButton("add goal");
-        addButton.setPreferredSize(new Dimension(200, 40));
-        addButton.setBackground(new Color(194, 133, 0));
-        addButton.setForeground(Color.WHITE);
-        addButton.setFont(new Font("Arial", Font.PLAIN, 20));
-        addButton.setFocusPainted(false);
+        showGridButton = new JButton("show grid");
+        changeColorOfLinesButton = new JButton("change lines color");
+        saveAsPNGButton = new JButton("save as PNG");
 
-        toggleGridButton = new JButton("show grid");
-        toggleGridButton.setPreferredSize(new Dimension(200, 40));
-        toggleGridButton.setBackground(new Color(194, 133, 0));
-        toggleGridButton.setForeground(Color.WHITE);
-        toggleGridButton.setFont(new Font("Arial", Font.PLAIN, 20));
-        toggleGridButton.setFocusPainted(false);
-        toggleGridButton.addActionListener(new ActionListener() {
+        buttons[0]=addButton;
+        buttons[1]=showGridButton;
+        buttons[2]=changeColorOfLinesButton;
+        buttons[3]=saveAsPNGButton;
+
+        for(JButton button : buttons){
+            button.setPreferredSize(new Dimension(200, 40));
+            button.setBackground(new Color(194, 133, 0));
+            button.setForeground(Color.WHITE);
+            button.setFont(new Font("Arial", Font.PLAIN, 20));
+            button.setFocusPainted(false);
+        }
+
+        addButton.addActionListener(e -> {
+            if (sectionCount < 10) {
+                sectionCount++;
+                addSectionToCircle();
+                panel.repaint();
+            }
+        });
+
+        changeColorOfLinesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            }
+        });
+        showGridButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (sectionCount==0) return;
@@ -138,11 +170,10 @@ public class Circle extends JFrame {
             }
         });
 
-        addButton.addActionListener(e -> {
-            if (sectionCount < 10) {
-                sectionCount++;
-                addSectionToCircle();
-                panel.repaint();
+        saveAsPNGButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveAsPNG();
             }
         });
     }
@@ -169,8 +200,8 @@ public class Circle extends JFrame {
         int centerY = y + diameter / 2;
         double radius = diameter / 2.0;
 
-        for (int i = 1; i <= 20; i++) {
-            double currentRadius = radius * (20 - i + 1) / 20;
+        for (int i = 1; i <= maxSteps; i++) {
+            double currentRadius = radius * (maxSteps - i + 1) / maxSteps;
             int currentDiameter = (int) (currentRadius * 2);
             int currentX = centerX - currentDiameter / 2;
             int currentY = centerY - currentDiameter / 2;
@@ -190,6 +221,31 @@ public class Circle extends JFrame {
         for (int i = 0; i < sectionCount; i++) {
             sections.add(new Goal(startAngle, angle, pastelColors[i]));
             startAngle += angle;
+        }
+    }
+
+    public void saveAsPNG() {
+        BufferedImage image = new BufferedImage(panel.getWidth(), panel.getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = image.createGraphics();
+        panel.paint(g2d);
+        g2d.dispose();
+
+        String userHome = System.getProperty("user.home");
+        String downloadsPath = userHome + File.separator + "Downloads" + File.separator;
+        String currentTime = LocalTime.now().toString().substring(0, 5).replace(':', ' ');
+        String fileName = "wheel_" + currentTime + ".png";
+        String filePath = downloadsPath + fileName;
+
+        try {
+            File file = new File(filePath);
+            ImageIO.write(image, "png", file);
+            System.out.println("Obraz został zapisany jako " + file.getAbsolutePath());
+
+            JOptionPane.showMessageDialog(null, "Plik został pobrany:\n" + filePath, "Pobrano plik", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (IOException ex) {
+            System.err.println("Błąd podczas zapisywania obrazu: " + ex.getMessage());
         }
     }
 }
