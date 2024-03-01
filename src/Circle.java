@@ -26,7 +26,7 @@ public class Circle extends JFrame {
     private final int maxSteps = 15;
 
     private boolean showGrid = false;
-    private Color lineColor = Color.WHITE;
+    private Color lineColor = Color.BLACK;
 
     int diameter;
     int x;
@@ -48,9 +48,7 @@ public class Circle extends JFrame {
     {
         try {
             font = Font.createFont(Font.TRUETYPE_FONT, new File(fontFilePath));
-        } catch (FontFormatException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
+        } catch (FontFormatException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -98,6 +96,7 @@ public class Circle extends JFrame {
                 g.fillRect(leftMargin, topMargin, rectangleWidth, rectangleHeight);
 
                 g.setColor(Color.WHITE);
+
                 font = font.deriveFont(Font.PLAIN, 70);
                 g.setFont(font);
                 g.drawString("wheel of goals", leftMargin + 40, topMargin + 70);
@@ -185,11 +184,16 @@ public class Circle extends JFrame {
     private void drawSections(Graphics2D g2d) {
         for (Goal goal : sections) {
             g2d.setColor(goal.getColor());
-            Arc2D.Double arc = new Arc2D.Double(x, y, diameter, diameter, goal.getStartAngle(), goal.getAngle(), Arc2D.PIE);
+            Arc2D.Double arc;
+            if(sectionCount==1){
+                arc = new Arc2D.Double(x, y, diameter, diameter, goal.getStartAngle(), goal.getAngle(), Arc2D.OPEN);
+            }else {
+                arc = new Arc2D.Double(x, y, diameter, diameter, goal.getStartAngle(), goal.getAngle(), Arc2D.PIE);
+            }
             GeneralPath path = new GeneralPath();
             path.append(arc, true);
             g2d.fill(path);
-            if(sectionCount>1) {
+            if(sectionCount>=1) {
                 g2d.setStroke(new BasicStroke(3f));
                 g2d.setColor(lineColor);
                 g2d.draw(path);
