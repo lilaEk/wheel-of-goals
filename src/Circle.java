@@ -43,6 +43,17 @@ public class Circle extends JFrame {
             new Color(135, 206, 235), // Pastel Dark Blue
             new Color(221, 160, 221)  // Pastel Purple
     };
+    String fontFilePath = "assets/coolvetica rg.otf";
+    Font font;
+    {
+        try {
+            font = Font.createFont(Font.TRUETYPE_FONT, new File(fontFilePath));
+        } catch (FontFormatException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public Circle() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -86,10 +97,10 @@ public class Circle extends JFrame {
                 int rectangleHeight = 100;
                 g.fillRect(leftMargin, topMargin, rectangleWidth, rectangleHeight);
 
-                Font font = new Font("Arial", Font.BOLD, 50);
-                g.setFont(font);
                 g.setColor(Color.WHITE);
-                g.drawString("WHEEL OF GOALS", leftMargin + 20, topMargin + 70);
+                font = font.deriveFont(Font.PLAIN, 70);
+                g.setFont(font);
+                g.drawString("wheel of goals", leftMargin + 40, topMargin + 70);
 
                 diameter = Math.min(getWidth(), getHeight()) * 3 / 4;
                 x = getWidth() - diameter - 120;
@@ -137,7 +148,8 @@ public class Circle extends JFrame {
             button.setPreferredSize(new Dimension(200, 40));
             button.setBackground(new Color(194, 133, 0));
             button.setForeground(Color.WHITE);
-            button.setFont(new Font("Arial", Font.PLAIN, 20));
+            font = font.deriveFont(Font.PLAIN, 20);
+            button.setFont(font);
             button.setFocusPainted(false);
         }
 
