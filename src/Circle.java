@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.TimerTask;
 
 public class Circle extends JFrame {
     private JPanel panel;
@@ -97,14 +96,8 @@ public class Circle extends JFrame {
                 y = (getHeight() - diameter) / 2 + 35;
 
                 // rysowanie koła
-                g.setColor(Color.WHITE);
                 g.fillOval(x, y, diameter, diameter);
 
-                // rysowanie obramowania koła
-//                g.setColor(Color.BLACK);
-//                g.drawOval(x, y - 50, diameter, diameter);
-
-                g.setColor(Color.WHITE);
                 // rysowanie sekcji koła
                 drawSections(g2d);
 
@@ -155,12 +148,6 @@ public class Circle extends JFrame {
                 panel.repaint();
             }
         });
-
-        changeColorOfLinesButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            }
-        });
         showGridButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -169,7 +156,12 @@ public class Circle extends JFrame {
                 panel.repaint();
             }
         });
-
+        changeColorOfLinesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                changeLinesColor();
+            }
+        });
         saveAsPNGButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -186,8 +178,8 @@ public class Circle extends JFrame {
             path.append(arc, true);
             g2d.fill(path);
             if(sectionCount>1) {
-                g2d.setStroke(new BasicStroke(4f));
-                g2d.setColor(Color.WHITE);
+                g2d.setStroke(new BasicStroke(3f));
+                g2d.setColor(lineColor);
                 g2d.draw(path);
             }
         }
@@ -224,7 +216,7 @@ public class Circle extends JFrame {
         }
     }
 
-    public void saveAsPNG() {
+    private void saveAsPNG() {
         BufferedImage image = new BufferedImage(panel.getWidth(), panel.getHeight(), BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g2d = image.createGraphics();
@@ -247,5 +239,15 @@ public class Circle extends JFrame {
         } catch (IOException ex) {
             System.err.println("Błąd podczas zapisywania obrazu: " + ex.getMessage());
         }
+    }
+
+    private void changeLinesColor(){
+        if (lineColor.equals(Color.WHITE)) {
+            lineColor = Color.BLACK;
+            panel.repaint();
+            return;
+        }
+        lineColor=Color.WHITE;
+        panel.repaint();
     }
 }
