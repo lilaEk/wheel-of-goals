@@ -225,12 +225,22 @@ public class Circle extends JFrame {
 
         String userHome = System.getProperty("user.home");
         String downloadsPath = userHome + File.separator + "Downloads" + File.separator;
-        String currentTime = LocalTime.now().toString().substring(0, 5).replace(':', ' ');
+        String currentTime = LocalTime.now().toString().substring(0, 5).replace(':', '-');
+        String fileNameTmp = "wheel_" + currentTime;
         String fileName = "wheel_" + currentTime + ".png";
         String filePath = downloadsPath + fileName;
 
+        File file = new File(filePath);
+        int count = 1;
+
+        while (file.exists()) {
+            filePath=fileNameTmp+"("+count+").png";
+            file = new File(filePath);
+            count++;
+        }
+
         try {
-            File file = new File(filePath);
+            file = new File(filePath);
             ImageIO.write(image, "png", file);
             System.out.println("Obraz został zapisany jako " + file.getAbsolutePath());
 
