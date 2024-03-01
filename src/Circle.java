@@ -45,6 +45,7 @@ public class Circle extends JFrame {
     };
     String fontFilePath = "assets/coolvetica rg.otf";
     Font font;
+
     {
         try {
             font = Font.createFont(Font.TRUETYPE_FONT, new File(fontFilePath));
@@ -85,7 +86,7 @@ public class Circle extends JFrame {
                 int rectWidth = getWidth() - 2 * margin;
                 int rectHeight = defaultHeight - margin;
                 g.setColor(Color.WHITE);
-                g.fillRect(margin, margin + 50, rectWidth, rectHeight);
+                g.fillRect(margin, margin + 30, rectWidth, rectHeight);
 
                 // rysowanie ciemniejszego prostokąta na górze po lewej stronie
                 g.setColor(new Color(194, 133, 0)); // c28500
@@ -138,12 +139,12 @@ public class Circle extends JFrame {
         changeColorOfLinesButton = new JButton("change lines color");
         saveAsPNGButton = new JButton("save as PNG");
 
-        buttons[0]=addButton;
-        buttons[1]=showGridButton;
-        buttons[2]=changeColorOfLinesButton;
-        buttons[3]=saveAsPNGButton;
+        buttons[0] = addButton;
+        buttons[1] = showGridButton;
+        buttons[2] = changeColorOfLinesButton;
+        buttons[3] = saveAsPNGButton;
 
-        for(JButton button : buttons){
+        for (JButton button : buttons) {
             button.setPreferredSize(new Dimension(200, 40));
             button.setBackground(new Color(194, 133, 0));
             button.setForeground(Color.WHITE);
@@ -162,7 +163,7 @@ public class Circle extends JFrame {
         showGridButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (sectionCount==0) return;
+                if (sectionCount == 0) return;
                 showGrid = !showGrid;
                 panel.repaint();
             }
@@ -182,23 +183,104 @@ public class Circle extends JFrame {
     }
 
     private void drawSections(Graphics2D g2d) {
+        FontMetrics metrics = g2d.getFontMetrics();
+
         for (Goal goal : sections) {
+
             g2d.setColor(goal.getColor());
             Arc2D.Double arc;
-            if(sectionCount==1){
+
+            double startAngle = goal.getStartAngle();
+            double angle = goal.getAngle();
+
+            if (sectionCount == 1) {
                 arc = new Arc2D.Double(x, y, diameter, diameter, goal.getStartAngle(), goal.getAngle(), Arc2D.OPEN);
-            }else {
+            } else {
                 arc = new Arc2D.Double(x, y, diameter, diameter, goal.getStartAngle(), goal.getAngle(), Arc2D.PIE);
             }
+
             GeneralPath path = new GeneralPath();
             path.append(arc, true);
             g2d.fill(path);
-            if(sectionCount>=1) {
+
+            int additionalOffset = 50;
+
+            double midAngle = Math.toRadians(startAngle + angle / 2);
+            double cosMid = Math.cos(midAngle);
+            double sinMid = Math.sin(midAngle);
+            double midX = x + (double) diameter / 2 + (double) diameter / 2 * cosMid + 40;
+            double midY = y + (double) diameter / 2 + (double) diameter / 2 * sinMid - 40;
+
+            String goalName = goal.getGoalName();
+            int textWidth = metrics.stringWidth(goalName);
+            int textHeight = metrics.getHeight();
+
+            int textX = (int) (midX - textWidth / 2);
+            int textY = (int) (midY + textHeight / 2);
+
+            GoalNamePosition position = getResult(startAngle, textX, additionalOffset, textY);
+
+            font = font.deriveFont(Font.PLAIN, 20);
+            g2d.setFont(font);
+            g2d.setColor(Color.BLACK);
+            g2d.drawString(goalName, position.textX(), position.textY());
+
+            if (sectionCount >= 1) {
                 g2d.setStroke(new BasicStroke(3f));
                 g2d.setColor(lineColor);
                 g2d.draw(path);
             }
         }
+    }
+
+    private GoalNamePosition getResult(double startAngle, int textX, int additionalOffset, int textY) {
+        if (startAngle >= 315) {
+            textX += additionalOffset;
+        }
+        if (startAngle > 270 && startAngle < 315) {
+            textY -= additionalOffset;
+            textX += additionalOffset;
+        }
+        if (startAngle == 270) {
+            textX += additionalOffset;
+        }
+        if (startAngle >= 225 && startAngle < 270) {
+            textX -= additionalOffset;
+            textY -= additionalOffset;
+        }
+        if (startAngle > 180 && startAngle < 225) {
+            textX -= additionalOffset;
+        }
+        if (startAngle == 180) {
+            textY -= additionalOffset;
+        }
+        if (startAngle >= 135 && startAngle < 180) {
+            textY += additionalOffset;
+            textX -= additionalOffset;
+        }
+        if (startAngle > 90 && startAngle < 135) {
+            textY += additionalOffset;
+            textX -= additionalOffset;
+        }
+        if (startAngle == 90) {
+            textX -= additionalOffset;
+        }
+        if (startAngle >= 45 && startAngle < 90) {
+            textY += additionalOffset;
+            textX += additionalOffset;
+        }
+        if (startAngle > 0 && startAngle < 45) {
+            textY += additionalOffset;
+            textX += additionalOffset;
+        }
+        if (startAngle == 0 && sectionCount != 1) {
+            textY += additionalOffset;
+            textX += additionalOffset;
+        } else if (startAngle == 0) {
+            textX -= additionalOffset;
+        }
+        GoalNamePosition position = new GoalNamePosition(textX, textY);
+        return position;
     }
 
     private void drawGrid(Graphics2D g2d) {
@@ -250,7 +332,7 @@ public class Circle extends JFrame {
         int count = 1;
 
         while (file.exists()) {
-            filePath=fileNameTmp+"("+count+").png";
+            filePath = downloadsPath + fileNameTmp + "(" + count + ").png";
             file = new File(filePath);
             count++;
         }
@@ -267,13 +349,16 @@ public class Circle extends JFrame {
         }
     }
 
-    private void changeLinesColor(){
+    private void changeLinesColor() {
         if (lineColor.equals(Color.WHITE)) {
             lineColor = Color.BLACK;
             panel.repaint();
             return;
         }
-        lineColor=Color.WHITE;
+        lineColor = Color.WHITE;
         panel.repaint();
+    }
+
+    private record GoalNamePosition(int textX, int textY) {
     }
 }

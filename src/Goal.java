@@ -1,7 +1,7 @@
 import java.awt.*;
 
 class Goal {
-    private String nameOfGoal;
+    private String goalName;
     private Color color;
     private int progress;
     private double startAngle;
@@ -11,14 +11,15 @@ class Goal {
         this.startAngle = startAngle;
         this.angle = angle;
         this.color = color;
+        this.goalName="goal";
     }
 
-    public String getNameOfGoal() {
-        return nameOfGoal;
+    public String getGoalName() {
+        return goalName;
     }
 
-    public void setNameOfGoal(String nameOfGoal) {
-        this.nameOfGoal = nameOfGoal;
+    public void setGoalName(String goalName) {
+        this.goalName = goalName;
     }
 
     public Color getColor() {
